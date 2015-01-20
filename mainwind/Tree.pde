@@ -41,69 +41,39 @@ class tree{
   void draw(){
     if(branchWidth<.5)//stop growing if it's too thin to render
       lengthSoFar = totalBranchLength;
-    while(lengthSoFar<totalBranchLength){
-      branchWidth = branchWidth0*(1-lengthSoFar/totalBranchLength);
-      //do I need to split?
-      if(lengthSoFar/totalBranchLength > percentBranchless){//if i can branch
-        if(random(0,1)<oddsOfBranching){//and i randomly choose to
-          treesLayer.stroke(myColor);
-          //make a new branch there!
-            (new tree(x1, y1, theta+randomSign()*dThetaSplitMax, branchWidth,
-                      totalBranchLength*branchSizeFraction, nBranchDivisions, 
-                      percentBranchless, branchSizeFraction, 
-                      dThetaGrowMax, dThetaSplitMax,
-                      oddsOfBranching, myColor)).draw();
-        }
+    for (int i=0; i<5 ; i++){
+      if (lengthSoFar>=totalBranchLength){
+        break;
       }
-
-      //change directions, grow forward 
+      branchWidth = branchWidth0*(1-lengthSoFar/totalBranchLength);
+      (new tree(x1, y1, theta+randomSign()*dThetaSplitMax, branchWidth,
+                totalBranchLength*branchSizeFraction, nBranchDivisions, 
+                percentBranchless, branchSizeFraction, 
+                dThetaGrowMax, dThetaSplitMax,
+                oddsOfBranching, myColor)).draw();
       nextSectionLength = totalBranchLength/nBranchDivisions;
       lengthSoFar+=nextSectionLength;
       theta += randomSign()*random(0,dThetaGrowMax);
       x2 = x1+nextSectionLength*cos(theta);
       y2 = y1+nextSectionLength*sin(theta);
-      //scale thickness by the distance it's traveled.
-      treesLayer.strokeWeight(abs(branchWidth));
-      treesLayer.stroke(myColor);
-      treesLayer.line(x1,y1,x2,y2);
-      if(addSnow){
-        //initially, just a line on the upper half
-        treesLayer.stroke(255);
-
-        float dx =0;
-        float dy =0;
-        float overlapScaling = 1.2;
-        if(theta <-PI/2){
-          if(abs(PI+theta)<maxSnowTheta){
-//            stroke(255,0,0);
-            float snowThickness = constrain(abs(branchWidth)/2*(1-abs(theta+PI)/HALF_PI),0,abs(branchWidth)/2);
-            if(snowThickness>0){
-              treesLayer.strokeWeight(snowThickness);
-              dx = (abs(branchWidth)-snowThickness)/2*cos(theta+PI/2)*overlapScaling;
-              dy = (abs(branchWidth)-snowThickness)/2*sin(theta+PI/2)*overlapScaling;
-              treesLayer.line(x1+dx-abs(branchWidth)*cos(theta)/4,y1+dy-abs(branchWidth)*sin(theta)/4,
-                              x2+dx,y2+dy);
-            }
-          }
-        }
-        if(theta >-PI/2){
-          if(abs(theta)<maxSnowTheta){
-//            stroke(0,255,0);
-            float snowThickness = constrain(abs(branchWidth)/2*(1-abs(theta)/HALF_PI),0,abs(branchWidth)/2);
-            if(snowThickness>0){
-              treesLayer.strokeWeight(snowThickness);
-              dx = (abs(branchWidth)-snowThickness)/2*cos(theta-PI/2)*overlapScaling;
-              dy = (abs(branchWidth)-snowThickness)/2*sin(theta-PI/2)*overlapScaling;
-              treesLayer.line(x1+dx-abs(branchWidth)*cos(theta)/4,y1+dy-abs(branchWidth)*sin(theta)/4,
-                              x2+dx,y2+dy);
-            }
-          }
-        }
-      }
+      drawText("meaning",x1,y1,x2,y2);
       x1 = x2;
       y1 = y2;
-    }
+    }  
   }
 }
 
-
+void drawText(String str,float x1, float y1, float x2, float y2){
+   float dx = x2 - x1;
+   float dy = y2 - y1;
+   float ratioX = dx / dy;
+   float ratioY = dy / dx;
+   float xFactor = dx / str.length();
+   float yFactor = dy / str.length();
+   float dxi = dx / str.length();
+   for(int i=0; i<str.length(); i++){
+      float dxx = dxi * i;
+      float dyy = dxx * dy / dx ;
+      treesLayer.text(str.charAt(i),x1+dxx,y1+dyy);
+   } 
+}

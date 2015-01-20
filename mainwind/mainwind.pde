@@ -5,14 +5,14 @@ int x = 200;
 int y = 400;
 
 PFont f;
-String message = "meaning";
+String message;
 
 boolean addSnow = false;
 boolean addBlur = false;
 float maxSnowTheta = HALF_PI*4/5;
 
 int nTrees = 2;
-tree[] trees;
+mytree[] trees;
 color backgroundCol = color(200);
 //initial tree properties.
 float branchWidthInit;
@@ -27,54 +27,67 @@ float oddsOfBranchingInit;
 
 PGraphics treesLayer;
 PGraphics lettersLayer;
+PGraphics testLayer;
+
 
 Letter[] letters;
+String[] words;
 
 void setup() {
   f = createFont("Arial", 20, true);
   textFont(f);
-  size(1024, 768);
-  myMovie = new Movie(this, "wind1.mp4");
+  String lines[] = loadStrings("poem.txt");
+  size(921, 691);
+  myMovie = new Movie(this, "wind2.mov");
   myMovie.loop();
-
+  
+  words = split(lines[0]," ");
+  message = words[0];
+  
   letters = new Letter[message.length()];
   buildWord();
   
     
   background(backgroundCol);
-//  noFill();
   treesLayer = createGraphics(width, height);
   lettersLayer = createGraphics(width, height);
+  testLayer = createGraphics(width, height);
   
-  initializeTreeValues();
-  newTrees();
+    newTrees();
 }
 
 void draw() {
-//  tint(255, 20);
   image(myMovie, 0, 0);
-//  fill(120);
-  
-  if (frameCount%200==0){
+
+  boolean drawTrees = false;  
+  if (frameCount%200==0 || frameCount==0){
     x = int(random(0, width));
     y = int(random(0, height));
     buildWord();
-//    fadeScreen();
     newTrees();
+    drawTrees = true;
   }
   showWord();
-  
-  treesLayer.beginDraw();
-  treesLayer.fill(0);
-  for(int i=0; i<nTrees; i++){
-    trees[i].draw();
-  }
-  treesLayer.endDraw();
 
-  image(treesLayer,0,0);
-  image(lettersLayer,0,0);
+
+    image(lettersLayer,0,0);
+//  image(testLayer,0,0);
+//  if (drawTrees){
+    treesLayer.beginDraw();
+    treesLayer.fill(0);
+    if (trees != null){
+      for(int i=0; i<trees.length; i++){
+        trees[i].draw();
+      }
+      trees = null;
+    }
+    treesLayer.endDraw();
+//  }
+   image(treesLayer,0,0);
+
   
 }
+
 
 void buildWord(){
   for (int i = 0; i < message.length(); i ++ ) {
@@ -100,41 +113,14 @@ void movieEvent(Movie m) {
 }
 
 
-void initializeTreeValues(){
-  branchWidthInit = 10;
-  totalBranchLengthInit = 300;
-  nBranchDivisionsInit = 30;
-  percentBranchlessInit = .3;
-  branchSizeFractionInit = .5;
-  dThetaGrowMaxInit = PI/15;
-  dThetaSplitMaxInit = PI/6; 
-  oddsOfBranchingInit = .3;
-}
 
 void newTrees(){
-/* tree(x, y, theta, branchWidth0,
-       totalBranchLength, nBranchDivisions, 
-       percentBranchless, branchSizeFraction, 
-       dThetaGrowMax, dThetaSplitMax,
-       oddsOfBranching, color)
-*/
 
-//  background(backgroundCol);
-//  noFill();
-  trees = new tree[nTrees];
+  trees = new mytree[nTrees];
   for(int i=0; i<nTrees; i++){
-    float randomY = random(height);
-    trees[i] = new tree(random(width), randomY, -HALF_PI, branchWidthInit,
-                   totalBranchLengthInit*randomY/height, nBranchDivisionsInit, 
-                   percentBranchlessInit, branchSizeFractionInit, 
-                   dThetaGrowMaxInit, dThetaSplitMaxInit,
-                   oddsOfBranchingInit, color(random(0,30)));
+//    float randomY = random(height);
+    trees[i] = new mytree();
   }                 
-//  for(int i=0; i<nTrees; i++)
-//    trees[i].draw();
-//    
-//  if(addBlur)
-//    filter(BLUR,1);
 }
 
 
