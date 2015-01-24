@@ -33,6 +33,10 @@ PGraphics testLayer;
 Letter[] letters;
 String[] words;
 
+Path path;
+
+ArrayList<Vehicle> vehicles;
+
 void setup() {
   f = createFont("Arial", 20, true);
   textFont(f);
@@ -42,19 +46,56 @@ void setup() {
   myMovie.loop();
   
   words = split(lines[0]," ");
-  message = words[0];
-  
-  letters = new Letter[message.length()];
-  buildWord();
-  
-    
   background(backgroundCol);
   treesLayer = createGraphics(width, height);
   lettersLayer = createGraphics(width, height);
   testLayer = createGraphics(width, height);
   
-    newTrees();
+  newTrees();
+  
+  newPath();
+  
+  vehicles = new ArrayList<Vehicle>();
+  for (int i = 0; i < lines.length ; i++) {
+    newVehicle(-100+i*10,200, lines[i]);
+  }
+  
+  frameRate(20);
 }
+
+void newVehicle(float x, float y, String word) {
+  float maxspeed = 0.7;
+  float maxforce = 0.1;
+  vehicles.add(new Vehicle(new PVector(x,y),maxspeed,maxforce,word));
+}
+
+
+void newPath() {
+  // A path is a series of connected points
+  // A more sophisticated path might be a curve
+  path = new Path();
+  float offset = 10;
+  path.addPoint(-100,200);  
+  path.addPoint(50,200);
+  path.addPoint(80,210);
+  path.addPoint(120,220);
+  path.addPoint(180,230);
+  path.addPoint(280,240);
+  path.addPoint(width-80,270);  
+  path.addPoint(width+100,250);
+  path.addPoint(width+100,height+100);
+  path.addPoint(-100,height+100);
+//  path.addPoint(offset,height-offset);
+}
+
+
+//void mouseDragged() {
+//  flock.addBoid(new Boid(mouseX,mouseY,"ffff"));
+//}
+
+void mousePressed() {
+}
+
 
 void draw() {
   image(myMovie, 0, 0);
@@ -63,16 +104,11 @@ void draw() {
   if (frameCount%200==0 || frameCount==0){
     x = int(random(0, width));
     y = int(random(0, height));
-    buildWord();
     newTrees();
     drawTrees = true;
   }
-  showWord();
 
 
-    image(lettersLayer,0,0);
-//  image(testLayer,0,0);
-//  if (drawTrees){
     treesLayer.beginDraw();
     treesLayer.fill(0);
     if (trees != null){
@@ -82,9 +118,14 @@ void draw() {
       trees = null;
     }
     treesLayer.endDraw();
-//  }
    image(treesLayer,0,0);
 
+  for (Vehicle v : vehicles) {
+    // Path following and separation are worked on in this function
+    v.applyBehaviors(vehicles,path);
+    // Call the generic run method (update, borders, display, etc.)
+    v.run();
+  }
   
 }
 
