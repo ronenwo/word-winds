@@ -18,6 +18,12 @@ class Vehicle {
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
 
+  PVector burstvelocity;
+  PVector burstacceleration;
+  float maxburstforce;    // Maximum steering force
+  float maxburstspeed;    // Maximum speed
+
+
   String text;
   String[] words;
   int[] offset;
@@ -34,11 +40,17 @@ class Vehicle {
     maxforce = mf;
     acceleration = new PVector(0, 0);
     velocity = new PVector(maxspeed, 0);
+
+    maxburstspeed = ms * 3;
+    maxburstforce = mf * 2;
+    burstacceleration = new PVector(1.5, random(-0.1,0.3));
+    burstvelocity = new PVector(maxburstspeed, random(-0.05,0.05));
+
     text = t;
     words = split(text," ");
     offset = new int[words.length];
     for (int i=0; i<words.length; i++){
-       offset[i] = Math.round(random(-2,2)); 
+       offset[i] = Math.round(i*40); 
     }
   }
 
@@ -59,6 +71,7 @@ class Vehicle {
   void applyForce(PVector force) {
     // We could add mass here if we want A = F / M
     acceleration.add(force);
+//    burstacceleration.add(force);
   }
 
 
@@ -192,9 +205,20 @@ class Vehicle {
   // Method to update location
   void update() {
     // Update velocity
-    velocity.add(acceleration);
-    // Limit speed
-    velocity.limit(maxspeed);
+    int mframeCount = frameCount%windCycle;
+    if ((mframeCount>=0 && mframeCount<=20) || (mframeCount>=27 && mframeCount<=35)){
+//      acceleration.mult(2);
+//      maxspeed *= 2;
+//      PVector burstFuzz = new PVector(random());
+      velocity.add(burstacceleration);
+      // Limit speed
+      velocity.limit(maxburstspeed);
+    }
+    else{
+      velocity.add(acceleration);
+      // Limit speed
+      velocity.limit(maxspeed);
+    }
     location.add(velocity);
     // Reset accelertion to 0 each cycle
     acceleration.mult(0);
@@ -234,9 +258,10 @@ class Vehicle {
     }
     degrees = pivot + sign * counter;
     
-    rotate(radians(degrees));
+//    rotate(radians(degrees));
     
     for(int i=0; i<words.length ; i++){
+      textSize(10);
       text(words[i],offset[i],i*15);
     }
 //    ellipse(0, 0, r, r);

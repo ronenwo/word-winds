@@ -13,7 +13,7 @@ class Path {
 
   Path() {
     // Arbitrary radius of 20
-    radius = 20;
+    radius = 8;
     points = new ArrayList<PVector>();
   }
 
