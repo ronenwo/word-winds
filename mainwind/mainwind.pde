@@ -89,7 +89,7 @@ void draw() {
   treesLayer.background(255, 0);
   treesLayer.fill(0);
 
-//  wobble();
+  wobble();
 
   for (mytree t : mytrees) {
     t.draw();
@@ -97,8 +97,8 @@ void draw() {
   treesLayer.endDraw();
 
   btreesLayer.beginDraw();
-//  btreesLayer.background(255, 0);
-//  btreesLayer.fill(0);
+  btreesLayer.background(255, 0);
+  btreesLayer.fill(0);
   btrees.draw();
   btreesLayer.endDraw();
 
@@ -117,8 +117,27 @@ void draw() {
 }
 
 void wobble() {
-  tilt = cos(angle) / 128;
-  angle += 0.1;
+  tilt = cos(angle) / 8;
+  if (isWindStrong()){
+     angle += 0.5; 
+  }
+  else{
+    angle += 0.1;
+  }
+}
+
+void drivingSpeed(){
+  
+}
+
+boolean isWindStrong(){
+   int mFrameCount = frameCount%200;
+  if (mFrameCount>=0 && mFrameCount<=50){
+     return true;
+  } 
+  else{
+     return false; 
+  }
 }
 
 void newVehicle(float x, float y, String word) {

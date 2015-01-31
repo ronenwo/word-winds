@@ -66,7 +66,7 @@ class Tree {
   boolean growen = false;
 
   void grow() {
-    println("DRAW TREE at: "+x1+","+y1);
+//    println("DRAW TREE at: "+x1+","+y1);
     if (branchWidth<.5)//stop growing if it's too thin to render
       lengthSoFar = totalBranchLength;
     while (lengthSoFar<totalBranchLength) {
@@ -108,19 +108,37 @@ class Tree {
     doDraw();
   }
   void doDraw() {
-    println("DRAW TREE at: "+x1+","+y1);
+//    println("DRAW TREE at: "+x1+","+y1);
 //    lengthSoFar = totalBranchLength;
     x1 = ix1;
     y1 = iy1;
 //    itheta = thetaI;
     branchWidth = ibranchWidth;
     totalBranchLength = itotalBranchLength;
+//    btreesLayer.pushMatrix();
+//    if (branchWidth < 3){
+//      btreesLayer.rotate(tilt);
+//    }
     for (Branch b : branches){
       btreesLayer.stroke(myColor);
       btreesLayer.strokeWeight(abs(b.bwidth));
       btreesLayer.stroke(myColor);
-      btreesLayer.line(b.x1, b.y1, b.x2, b.y2);
+      float dx = frameCount%20;
+//      if (frameCount%20==0){
+//        dx = 6;
+//      }
+//      else if (frameCount%10==0){
+//        dx = 3;
+//      }
+      btreesLayer.pushMatrix();
+      btreesLayer.translate(b.x1,b.y1);
+      if (b.bwidth < 4){
+        btreesLayer.rotate(tilt);
+      }
+      btreesLayer.line(0, 0, b.x2-b.x1, b.y2-b.y1);
+      btreesLayer.popMatrix();
     }
+    
 
     for (Tree t : subTrees) {
       t.draw();
