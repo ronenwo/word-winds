@@ -20,14 +20,18 @@ PGraphics testLayer;
 
 Letter[] letters;
 String[] words;
+String[] words1;
+String[] words2;
 
-Path path;
+Path path, path1, path2;
 
 float scalar = 1.2;
 
 
 ArrayList<Vehicle> vehicles;
-ArrayList<mytree> mytrees = new ArrayList<mytree>();
+ArrayList<Vehicle> vehicles1;
+ArrayList<Vehicle> vehicles2;
+
 
 
 int windCycle = 200;
@@ -52,26 +56,35 @@ void setup() {
 
   textFont(f3);
   String lines[] = loadStrings("poem.txt");
+  String lines1[] = loadStrings("poem1.txt");
+  String lines2[] = loadStrings("poem2.txt");
   size(921, 691);
   myMovie = new Movie(this, "wind2.mov");
   myMovie.loop();
 
-  words = split(lines[0], " ");
-  
   treesLayer = createGraphics(width, height);
   btreesLayer = createGraphics(width, height);
   lettersLayer = createGraphics(width, height);
-  testLayer = createGraphics(width, height);
-
-  //  newTrees();
-
 
   newPath();
+  newPath1();
+  newPath2();
 
   vehicles = new ArrayList<Vehicle>();
   for (int i = 0; i < lines.length; i++) {
-    newVehicle(-200+i*20, 200, lines[i]);
+    newVehicle(-200+i*20, 200, lines[i],vehicles);
   }
+
+  vehicles1 = new ArrayList<Vehicle>();
+  for (int i = 0; i < lines1.length; i++) {
+    newVehicle(-200+i*20, 200, lines1[i],vehicles1);
+  }
+
+  vehicles2 = new ArrayList<Vehicle>();
+  for (int i = 0; i < lines2.length; i++) {
+    newVehicle(width-400+i*20, 0, lines2[i],vehicles2);
+  }
+
 
   frameRate(30);
 }
@@ -79,35 +92,28 @@ void setup() {
 void draw() {
   image(myMovie, 0, 0);
 
+//  text(frameCount, 30, 30);
+
   if (frameCount%200==0 || frameCount==0) {
-    mytrees.add(new mytree());
     btrees.newTrees();
   }
-  
-  if (frameCount%500==0){
-      btrees.removeTrees();
+
+  if (frameCount%500==0) {
+    btrees.removeTrees();
   }
 
-
-  treesLayer.beginDraw();
-  treesLayer.background(255, 0);
-  treesLayer.fill(0);
 
   wobble();
 
-  for (mytree t : mytrees) {
-    t.draw();
-  }
-  treesLayer.endDraw();
 
   btreesLayer.beginDraw();
   btreesLayer.background(255, 0);
-//  btreesLayer.fill(0);
+  //  btreesLayer.fill(0);
   btrees.cleanUpDeadTrees();
   btrees.draw();
   btreesLayer.endDraw();
 
-//  image(treesLayer, 0, 0);
+  //  image(treesLayer, 0, 0);
 
 
   image(btreesLayer, 0, 0);
@@ -119,38 +125,50 @@ void draw() {
     // Call the generic run method (update, borders, display, etc.)
     v.run();
   }
+
+  for (Vehicle v : vehicles1) {
+    // Path following and separation are worked on in this function
+    v.applyBehaviors(vehicles1, path1);
+    // Call the generic run method (update, borders, display, etc.)
+    v.run();
+  }
+
+  for (Vehicle v : vehicles2) {
+    // Path following and separation are worked on in this function
+    v.applyBehaviors(vehicles2, path2);
+    // Call the generic run method (update, borders, display, etc.)
+    v.run();
+  }
+
 }
 
 
 
 void wobble() {
   tilt = cos(angle) / 4;
-  if (isWindStrong()){
-     angle += 2; 
-  }
-  else{
+  if (isWindStrong()) {
+    angle += 2;
+  } else {
     angle += 0.2;
   }
 }
 
-void drivingSpeed(){
-  
+void drivingSpeed() {
 }
 
-boolean isWindStrong(){
-   int mFrameCount = frameCount%200;
-  if (mousePressed){
-     return true;
-  } 
-  else{
-     return false; 
+boolean isWindStrong() {
+  int mFrameCount = frameCount%250;
+  if (mousePressed || (mFrameCount>=0 && mFrameCount<30)) {
+    return true;
+  } else {
+    return false;
   }
 }
 
-void newVehicle(float x, float y, String word) {
+void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs) {
   float maxspeed = 0.8;
   float maxforce = 0.2;
-  vehicles.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word));
+  vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word));
 }
 
 
@@ -172,29 +190,47 @@ void newPath() {
   //  path.addPoint(offset,height-offset);
 }
 
+void newPath1() {
+  // A path is a series of connected points
+  // A more sophisticated path might be a curve
+  path1 = new Path();
+  float offset = 10;
+  path1.addPoint(-300, height-300);  
+  path1.addPoint(50, height-300);
+  path1.addPoint(80, height-270);
+  path1.addPoint(120, height-220);
+  path1.addPoint(180, height-190);
+  path1.addPoint(280, height-100);
+  path1.addPoint(width-100, height);  
+  path1.addPoint(width+100, height);
+  path1.addPoint(width+100, height+100);
+  path1.addPoint(-100, height+100);
+  //  path.addPoint(offset,height-offset);
+}
+
+void newPath2() {
+  // A path is a series of connected points
+  // A more sophisticated path might be a curve
+  path2 = new Path();
+  float offset = 10;
+//  path2.addPoint(width-300, -300);  
+  path2.addPoint(width-300, 0);
+  path2.addPoint(width-280, height-400);
+  path2.addPoint(width-250, height-220);
+  path2.addPoint(width-200, height-190);
+  path2.addPoint(width-160, height-100);
+  path2.addPoint(width-100, height-80);  
+  path2.addPoint(width+100, height-80);
+  path2.addPoint(width+100, -100);
+  //  path.addPoint(offset,height-offset);
+}
+
+
+
 // Called every time a new frame is available to read
 void movieEvent(Movie m) {
   m.read();
 }
-
-void newTrees() {
-  for (int i=0; i<2; i++) {
-    mytrees.add(new mytree());
-  }
-}
-
-//void blankScreen() {
-//  fill(backgroundCol);
-//  noStroke();
-//  rect(0, 0, width, height);
-//}
-//
-//void fadeScreen() {
-//  fill(backgroundCol, 50);
-//  noStroke();
-//  rect(0, 0, width, height);
-//}
-//
 
 int randomSign() { //returns +1 or -1
   float num = random(-1, 1);
@@ -211,24 +247,5 @@ int randomSign() { //returns +1 or -1
 
 void mousePressed() {
   angle += 2;
-}
-
-
-
-void buildWord() {
-  for (int i = 0; i < message.length (); i ++ ) {
-    // Letter objects are initialized with their location within the String as well as what character they should display.
-    letters[i] = new Letter(x, y, message.charAt(i)); 
-    x += textWidth(message.charAt(i));
-  }
-}
-
-void showWord() {
-  lettersLayer.beginDraw();
-  for (int i = 0; i < letters.length; i ++ ) {
-    // Display all letters
-    letters[i].display();
-  }  
-  lettersLayer.endDraw();
 }
 

@@ -35,7 +35,7 @@ class Vehicle {
     // Constructor initialize all values
   Vehicle( PVector l, float ms, float mf, String t) {
     location = l.get();
-    r = 6;
+    r = 12;
     maxspeed = ms;
     maxforce = mf;
     acceleration = new PVector(0, 0);

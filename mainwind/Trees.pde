@@ -43,8 +43,8 @@ class Trees {
     dThetaGrowMaxInit = PI/15;
     dThetaSplitMaxInit = PI/6; 
     oddsOfBranchingInit = .3;
-    minLifeSpanBeforeFade = 300;
-    maxLifeSpanBeforeFade = 700;
+    minLifeSpanBeforeFade = 200;
+    maxLifeSpanBeforeFade = 400;
   }
 
   void newTrees() {
@@ -59,14 +59,6 @@ class Trees {
         oddsOfBranchingInit, 0, int(random(minLifeSpanBeforeFade,maxLifeSpanBeforeFade)))
         );
     }
-
-    //    for (int i=0; i<2; i++) {
-    //      trees.add(new Tree(random(width), height, -HALF_PI, branchWidthInit, 
-    //      totalBranchLengthInit, nBranchDivisionsInit, 
-    //      percentBranchlessInit, branchSizeFractionInit, 
-    //      dThetaGrowMaxInit, dThetaSplitMaxInit, 
-    //      oddsOfBranchingInit, color(random(0, 30))));
-    //    }
 
     if (addBlur)
       btreesLayer.filter(BLUR, 1);
