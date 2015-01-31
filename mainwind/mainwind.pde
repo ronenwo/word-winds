@@ -83,6 +83,10 @@ void draw() {
     mytrees.add(new mytree());
     btrees.newTrees();
   }
+  
+  if (frameCount%500==0){
+      btrees.removeTrees();
+  }
 
 
   treesLayer.beginDraw();
@@ -98,7 +102,8 @@ void draw() {
 
   btreesLayer.beginDraw();
   btreesLayer.background(255, 0);
-  btreesLayer.fill(0);
+//  btreesLayer.fill(0);
+  btrees.cleanUpDeadTrees();
   btrees.draw();
   btreesLayer.endDraw();
 
@@ -116,13 +121,15 @@ void draw() {
   }
 }
 
+
+
 void wobble() {
-  tilt = cos(angle) / 8;
+  tilt = cos(angle) / 4;
   if (isWindStrong()){
-     angle += 0.5; 
+     angle += 2; 
   }
   else{
-    angle += 0.1;
+    angle += 0.2;
   }
 }
 
@@ -132,7 +139,7 @@ void drivingSpeed(){
 
 boolean isWindStrong(){
    int mFrameCount = frameCount%200;
-  if (mFrameCount>=0 && mFrameCount<=50){
+  if (mousePressed){
      return true;
   } 
   else{
@@ -203,6 +210,7 @@ int randomSign() { //returns +1 or -1
 //}
 
 void mousePressed() {
+  angle += 2;
 }
 
 

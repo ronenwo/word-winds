@@ -261,7 +261,7 @@ class Vehicle {
 //    rotate(radians(degrees));
     
     for(int i=0; i<words.length ; i++){
-      textSize(10);
+      textSize(12);
       text(words[i],offset[i],i*15);
     }
 //    ellipse(0, 0, r, r);

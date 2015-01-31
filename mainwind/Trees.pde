@@ -3,6 +3,8 @@
 
 class Trees {
 
+
+
   boolean addBlur = false;
 
   int nTrees = 2;
@@ -19,6 +21,10 @@ class Trees {
   float dThetaGrowMaxInit;
   float dThetaSplitMaxInit; 
   float oddsOfBranchingInit;
+
+  int minLifeSpanBeforeFade;
+  int maxLifeSpanBeforeFade;
+
 
   ArrayList<Tree> trees = new ArrayList<Tree>();
 
@@ -37,35 +43,60 @@ class Trees {
     dThetaGrowMaxInit = PI/15;
     dThetaSplitMaxInit = PI/6; 
     oddsOfBranchingInit = .3;
+    minLifeSpanBeforeFade = 300;
+    maxLifeSpanBeforeFade = 700;
   }
 
   void newTrees() {
 
+    addBlur = false;
     for (int i=0; i<2; i++) {
-      trees.add(new Tree(random(width), random(400,height), -HALF_PI, branchWidthInit, 
-      totalBranchLengthInit, nBranchDivisionsInit, 
-      percentBranchlessInit, branchSizeFractionInit, 
-      dThetaGrowMaxInit, dThetaSplitMaxInit, 
-      oddsOfBranchingInit, 0));
+      trees.add(
+        new Tree(random(width), random(400, height), -HALF_PI, branchWidthInit, 
+        totalBranchLengthInit, nBranchDivisionsInit, 
+        percentBranchlessInit, branchSizeFractionInit, 
+        dThetaGrowMaxInit, dThetaSplitMaxInit, 
+        oddsOfBranchingInit, 0, int(random(minLifeSpanBeforeFade,maxLifeSpanBeforeFade)))
+        );
     }
 
-//    for (int i=0; i<2; i++) {
-//      trees.add(new Tree(random(width), height, -HALF_PI, branchWidthInit, 
-//      totalBranchLengthInit, nBranchDivisionsInit, 
-//      percentBranchlessInit, branchSizeFractionInit, 
-//      dThetaGrowMaxInit, dThetaSplitMaxInit, 
-//      oddsOfBranchingInit, color(random(0, 30))));
-//    }
+    //    for (int i=0; i<2; i++) {
+    //      trees.add(new Tree(random(width), height, -HALF_PI, branchWidthInit, 
+    //      totalBranchLengthInit, nBranchDivisionsInit, 
+    //      percentBranchlessInit, branchSizeFractionInit, 
+    //      dThetaGrowMaxInit, dThetaSplitMaxInit, 
+    //      oddsOfBranchingInit, color(random(0, 30))));
+    //    }
 
     if (addBlur)
-      filter(BLUR, 1);
+      btreesLayer.filter(BLUR, 1);
+  }
+
+  void removeTrees() {
+    //    trees.remove(0);
+    //    trees.remove(0);
   }
 
 
   void draw() {
+//    alpha ++;
+//    if (alpha == 255) {
+//      alpha = 0;
+//    }
+
     for (Tree t : trees) {
       t.draw();
     }
+  }
+  
+  void cleanUpDeadTrees(){
+    for (int i=0; i<trees.size() ; i++){
+      Tree tr = trees.get(i);
+      if (tr.isDead()){
+        trees.remove(i);
+        break;
+      }  
+    }      
   }
 
 
@@ -76,9 +107,11 @@ class Trees {
   }
 
   void fadeScreen() {
-    fill(backgroundCol, 50);
-    noStroke();
-    rect(0, 0, width, height);
+    btreesLayer.beginDraw();
+    btreesLayer.fill(backgroundCol, 50);
+    btreesLayer.noStroke();
+    btreesLayer.rect(0, 0, width, height);
+    btreesLayer.endDraw();
   }
 
 

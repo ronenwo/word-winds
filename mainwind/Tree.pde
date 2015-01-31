@@ -11,6 +11,7 @@ class Tree {
   float dThetaSplitMax;
   float oddsOfBranching; //the odds of branching at a given location.
   color myColor;
+  int lifeSpan;
 
   ArrayList<Tree> subTrees = new ArrayList<Tree>();
 
@@ -34,7 +35,7 @@ class Tree {
   float totalBranchLengthI, int nBranchDivisionsI, 
   float percentBranchlessI, float branchSizeFractionI, 
   float dThetaGrowMaxI, float dThetaSplitMaxI, 
-  float oddsOfBranchingI, color colorI) {
+  float oddsOfBranchingI, color colorI, int mlifeSpan) {
     x1 = xI;
     y1 = yI;
     x2 = xI;
@@ -57,6 +58,7 @@ class Tree {
     dThetaSplitMax = dThetaSplitMaxI;
     oddsOfBranching = oddsOfBranchingI;
     myColor = colorI;
+    lifeSpan = mlifeSpan;
   }
 
   //this does the drawing/growing!
@@ -81,7 +83,7 @@ class Tree {
           totalBranchLength*branchSizeFraction, nBranchDivisions, 
           percentBranchless, branchSizeFraction, 
           dThetaGrowMax, dThetaSplitMax, 
-          oddsOfBranching, myColor)
+          oddsOfBranching, myColor, lifeSpan)
             );
         }
       }
@@ -99,6 +101,11 @@ class Tree {
   }
 
   void draw() {
+    lifeSpan --;
+    if (lifeSpan <=0){
+       lifeSpan = 0;
+       myColor ++;  
+    }
     lengthSoFar = 0;
     nextSectionLength = 0;
     if (!growen) {
@@ -120,7 +127,6 @@ class Tree {
 //      btreesLayer.rotate(tilt);
 //    }
     for (Branch b : branches){
-      btreesLayer.stroke(myColor);
       btreesLayer.strokeWeight(abs(b.bwidth));
       btreesLayer.stroke(myColor);
       float dx = frameCount%20;
@@ -135,6 +141,7 @@ class Tree {
       if (b.bwidth < 4){
         btreesLayer.rotate(tilt);
       }
+//      btreesLayer.fill(200,alpha);
       btreesLayer.line(0, 0, b.x2-b.x1, b.y2-b.y1);
       btreesLayer.popMatrix();
     }
@@ -143,6 +150,13 @@ class Tree {
     for (Tree t : subTrees) {
       t.draw();
     }
+  }
+  
+  boolean isDead(){
+     if (myColor >=255){
+        return true;
+     } 
+     return false;
   }
 }
 
