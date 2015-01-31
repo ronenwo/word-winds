@@ -1,0 +1,93 @@
+
+
+
+class Trees {
+
+  boolean addBlur = false;
+
+  int nTrees = 2;
+
+  color backgroundCol = color(200);
+  //color treeColor = color(0,255,0);
+
+  //initial tree properties.
+  float branchWidthInit;
+  float totalBranchLengthInit;
+  int nBranchDivisionsInit;
+  float percentBranchlessInit;
+  float branchSizeFractionInit;
+  float dThetaGrowMaxInit;
+  float dThetaSplitMaxInit; 
+  float oddsOfBranchingInit;
+
+  ArrayList<Tree> trees = new ArrayList<Tree>();
+
+  Trees() {
+    initializeTreeValues();
+    newTrees();
+  }
+
+
+  void initializeTreeValues() {
+    branchWidthInit = 10;
+    totalBranchLengthInit = 300;
+    nBranchDivisionsInit = 30;
+    percentBranchlessInit = .3;
+    branchSizeFractionInit = .5;
+    dThetaGrowMaxInit = PI/15;
+    dThetaSplitMaxInit = PI/6; 
+    oddsOfBranchingInit = .3;
+  }
+
+  void newTrees() {
+
+    for (int i=0; i<2; i++) {
+      trees.add(new Tree(random(width), random(400,height), -HALF_PI, branchWidthInit, 
+      totalBranchLengthInit, nBranchDivisionsInit, 
+      percentBranchlessInit, branchSizeFractionInit, 
+      dThetaGrowMaxInit, dThetaSplitMaxInit, 
+      oddsOfBranchingInit, 0));
+    }
+
+//    for (int i=0; i<2; i++) {
+//      trees.add(new Tree(random(width), height, -HALF_PI, branchWidthInit, 
+//      totalBranchLengthInit, nBranchDivisionsInit, 
+//      percentBranchlessInit, branchSizeFractionInit, 
+//      dThetaGrowMaxInit, dThetaSplitMaxInit, 
+//      oddsOfBranchingInit, color(random(0, 30))));
+//    }
+
+    if (addBlur)
+      filter(BLUR, 1);
+  }
+
+
+  void draw() {
+    for (Tree t : trees) {
+      t.draw();
+    }
+  }
+
+
+  void blankScreen() {
+    fill(backgroundCol);
+    noStroke();
+    rect(0, 0, width, height);
+  }
+
+  void fadeScreen() {
+    fill(backgroundCol, 50);
+    noStroke();
+    rect(0, 0, width, height);
+  }
+
+
+  int randomSign() { //returns +1 or -1
+    float num = random(-1, 1);
+    if (num==0)
+      return -1;
+    else
+      return (int)(num/abs(num));
+  }
+}
+

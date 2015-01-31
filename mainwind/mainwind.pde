@@ -11,20 +11,10 @@ boolean addSnow = false;
 boolean addBlur = false;
 float maxSnowTheta = HALF_PI*4/5;
 
-int nTrees = 2;
-color backgroundCol = color(200);
-//initial tree properties.
-float branchWidthInit;
-float totalBranchLengthInit;
-int nBranchDivisionsInit;
-float percentBranchlessInit;
-float branchSizeFractionInit;
-float dThetaGrowMaxInit;
-float dThetaSplitMaxInit; 
-float oddsOfBranchingInit;
 
 
 PGraphics treesLayer;
+PGraphics btreesLayer;
 PGraphics lettersLayer;
 PGraphics testLayer;
 
@@ -33,9 +23,7 @@ String[] words;
 
 Path path;
 
-float tilt = 0.1;
 float scalar = 1.2;
-float angle;
 
 
 ArrayList<Vehicle> vehicles;
@@ -46,7 +34,12 @@ int windCycle = 200;
 float minBurstRatio = 0.25;
 float maxBurstRation = 0.2;
 
+float tilt = 0.1;
+float angle = 0;
+
 PFont f1, f2, f3, f4, f5;
+
+Trees btrees;
 
 void setup() {
   f1 = createFont("FX_Dakar-Light", 20, true);
@@ -55,6 +48,8 @@ void setup() {
   f4 = createFont("FX_YamHamelach-Regular", 20, true);
   f5 = createFont("FX_Zaafran-Light", 20, true);
 
+  btrees = new Trees();
+
   textFont(f3);
   String lines[] = loadStrings("poem.txt");
   size(921, 691);
@@ -62,12 +57,14 @@ void setup() {
   myMovie.loop();
 
   words = split(lines[0], " ");
-  background(backgroundCol);
+  
   treesLayer = createGraphics(width, height);
+  btreesLayer = createGraphics(width, height);
   lettersLayer = createGraphics(width, height);
   testLayer = createGraphics(width, height);
 
-//  newTrees();
+  //  newTrees();
+
 
   newPath();
 
@@ -84,6 +81,7 @@ void draw() {
 
   if (frameCount%200==0 || frameCount==0) {
     mytrees.add(new mytree());
+    btrees.newTrees();
   }
 
 
@@ -91,12 +89,24 @@ void draw() {
   treesLayer.background(255, 0);
   treesLayer.fill(0);
 
+//  wobble();
+
   for (mytree t : mytrees) {
     t.draw();
   }
   treesLayer.endDraw();
 
-  image(treesLayer, 0, 0);
+  btreesLayer.beginDraw();
+//  btreesLayer.background(255, 0);
+//  btreesLayer.fill(0);
+  btrees.draw();
+  btreesLayer.endDraw();
+
+//  image(treesLayer, 0, 0);
+
+
+  image(btreesLayer, 0, 0);
+
 
   for (Vehicle v : vehicles) {
     // Path following and separation are worked on in this function
@@ -106,6 +116,10 @@ void draw() {
   }
 }
 
+void wobble() {
+  tilt = cos(angle) / 128;
+  angle += 0.1;
+}
 
 void newVehicle(float x, float y, String word) {
   float maxspeed = 0.8;
@@ -130,6 +144,38 @@ void newPath() {
   path.addPoint(width+100, height+100);
   path.addPoint(-100, height+100);
   //  path.addPoint(offset,height-offset);
+}
+
+// Called every time a new frame is available to read
+void movieEvent(Movie m) {
+  m.read();
+}
+
+void newTrees() {
+  for (int i=0; i<2; i++) {
+    mytrees.add(new mytree());
+  }
+}
+
+//void blankScreen() {
+//  fill(backgroundCol);
+//  noStroke();
+//  rect(0, 0, width, height);
+//}
+//
+//void fadeScreen() {
+//  fill(backgroundCol, 50);
+//  noStroke();
+//  rect(0, 0, width, height);
+//}
+//
+
+int randomSign() { //returns +1 or -1
+  float num = random(-1, 1);
+  if (num==0)
+    return -1;
+  else
+    return (int)(num/abs(num));
 }
 
 
@@ -157,42 +203,5 @@ void showWord() {
     letters[i].display();
   }  
   lettersLayer.endDraw();
-}
-
-
-// Called every time a new frame is available to read
-void movieEvent(Movie m) {
-  m.read();
-}
-
-
-
-void newTrees() {
-  for (int i=0; i<nTrees; i++) {
-    mytrees.add(new mytree());
-  }
-}
-
-
-
-void blankScreen() {
-  fill(backgroundCol);
-  noStroke();
-  rect(0, 0, width, height);
-}
-
-void fadeScreen() {
-  fill(backgroundCol, 50);
-  noStroke();
-  rect(0, 0, width, height);
-}
-
-
-int randomSign() { //returns +1 or -1
-  float num = random(-1, 1);
-  if (num==0)
-    return -1;
-  else
-    return (int)(num/abs(num));
 }
 

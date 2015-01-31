@@ -10,9 +10,9 @@ class mytree {
 
   boolean growen = false;
 
-  float tilt = 0.1;
+  float tilt1 = 0.1;
   float scalar = 1.2;
-  float angle;
+  float angle1;
 
   ArrayList<Branch> branches = new ArrayList<Branch>();
 
@@ -29,26 +29,19 @@ class mytree {
   mytree() {
   }
 
-  void wobble() {
-    tilt = cos(angle) / 16;
-    angle += 0.01;
-    if (angle > PI/5) {
-      angle = 0;
-    }
-  }
 
   void draw() {
     if (!growen) {
       growen = true;
       grow();
     }
-    wobble();
+//    wobble();
     redrawme();
   }
 
   void redrawme() {
-    println("draw a tree at: "+x+","+y);
-    println("draw a tree height: "+h);
+//    println("draw a tree at: "+x+","+y);
+//    println("draw a tree height: "+h);
     treesLayer.pushMatrix();
     treesLayer.translate(x, y);
     // Start the recursive branching!
@@ -78,12 +71,12 @@ class mytree {
   void rebranch(float h1, int index) {
     int mframeCount = frameCount%200;
     float t1 = tilt ;
-    if (mframeCount>=0 && mframeCount<=70)  {
-      t1 = tilt + radians(mframeCount / 40 );
-    }
-    else if (mframeCount>=41 && mframeCount<=60){
-      t1 = tilt + radians((80 - mframeCount)/ 50 );
-    }
+//    if (mframeCount>=0 && mframeCount<=40)  {
+//      t1 = radians(mframeCount / 80 );
+//    }
+//    else if (mframeCount>=41 && mframeCount<=60){
+//      t1 = radians((80 - mframeCount)/ 80 );
+//    }
 
 
     // thickness of the branch is mapped to its length
