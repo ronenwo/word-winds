@@ -62,6 +62,7 @@ PFont f1, f2, f3, f4, f5;
 Trees btrees;
 
 boolean debugF = false;
+boolean windFrames = false;
 
 void setup() {
 
@@ -226,7 +227,7 @@ void wobble() {
 void drivingSpeed() {
 }
 
-boolean isWindStrong1() {
+boolean isWindFramesStrong() {
   int mFrameCount = frameCount%120;
   if (mousePressed || (mFrameCount>=0 && mFrameCount<30)) {
     return true;
@@ -236,7 +237,13 @@ boolean isWindStrong1() {
 }
 
 boolean isWindStrong() {
-  if (mousePressed || (maximum >1000)) {
+  if (mousePressed){
+     return true; 
+  }
+  if (windFrames){
+     return isWindFramesStrong(); 
+  }
+  if (maximum >1000) {
     return true;
   } else {
     return false;
@@ -356,8 +363,14 @@ void keyPressed() {
   if (key=='d') {
     debugF = true;
   }
-  else if (key=='s'){
+  else if (key=='D'){
      debugF = false; 
+  }
+  else if (key=='f'){
+     windFrames = true; 
+  }
+  else if (key=='F'){
+     windFrames = false; 
   }
 }
 
