@@ -11,6 +11,8 @@ class Path {
   // A path has a radius, i.e how far is it ok for the boid to wander off
   float radius;
 
+  int index = 0;
+
   Path() {
     // Arbitrary radius of 20
     radius = 8;
@@ -22,6 +24,19 @@ class Path {
     PVector point = new PVector(x, y);
     points.add(point);
   }
+  
+  PVector get(){
+     return points.get(index);  
+  }
+  
+  PVector next(){
+    index++;
+    if (index>=points.size()){
+       index = 0; 
+    }
+    PVector p = points.get(index);
+    return p;
+  }  
 
   // Draw the path
   void display() {

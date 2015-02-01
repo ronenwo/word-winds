@@ -1,4 +1,18 @@
 import processing.video.*;
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
+Minim minim;
+AudioInput in;
+FFT fft;
+float hertz;//frequency in hertz
+int sampleRate= 44100;//sapleRate of 44100
+float [] max= new float [sampleRate/2];//array that contains the half of the sampleRate size, because FFT only reads the half of the sampleRate frequency. This array will be filled with amplitude values.
+float maximum;//the maximum amplitude of the max array
+float frequency;//the frequency in hertz
+
+
+
 Movie myMovie;
 
 int x = 200;
@@ -33,6 +47,7 @@ ArrayList<Vehicle> vehicles1;
 ArrayList<Vehicle> vehicles2;
 ArrayList<Vehicle> vehicles3;
 
+ArrayList<Smoother> smoothers;
 
 
 int windCycle = 200;
@@ -46,12 +61,24 @@ PFont f1, f2, f3, f4, f5;
 
 Trees btrees;
 
+boolean debugF = false;
+
 void setup() {
+
+  size(921, 691);
+
   f1 = createFont("FX_Dakar-Light", 20, true);
   f2 = createFont("FX_HadasaNewBook-Light", 20, true);
   f3 = createFont("FX_Optimum-Light", 20, true);
   f4 = createFont("FX_YamHamelach-Regular", 20, true);
   f5 = createFont("FX_Zaafran-Light", 20, true);
+
+  minim = new Minim(this);
+
+  // use the getLineIn method of the Minim object to get an AudioInput
+  in = minim.getLineIn();
+  fft = new FFT(in.left.size(), sampleRate);
+
 
   btrees = new Trees();
 
@@ -60,7 +87,7 @@ void setup() {
   String lines1[] = loadStrings("poem1.txt");
   String lines2[] = loadStrings("poem2.txt");
   String lines3[] = loadStrings("poem3.txt");
-  size(921, 691);
+
   myMovie = new Movie(this, "wind2.mov");
   myMovie.loop();
 
@@ -76,23 +103,31 @@ void setup() {
   vehicles = new ArrayList<Vehicle>();
   int txtSize = 12;
   for (int i = 0; i < lines.length; i++) {
-    newVehicle(-200+i*20, 200, lines[i],vehicles, txtSize + int(random(4)));
+    newVehicle(-200+i*20, 200, lines[i], vehicles, txtSize + int(random(4)));
   }
+
+  //  smoothers = new ArrayList<Smoother>();
+  //  int txtSize = 12;
+  //  for (int i = 0; i < lines.length; i++) {
+  //    newSmoother(-200+i*(lines[i].length()*txtSize+10), 200 + i* txtSize + 2 , lines[i],smoothers, txtSize + int(random(4)), path);
+  //  }
+
 
   vehicles1 = new ArrayList<Vehicle>();
   for (int i = 0; i < lines1.length; i++) {
-    newVehicle(-200+i*20, 200, lines1[i],vehicles1, txtSize + int(random(4)));
+    newVehicle(-200+i*20, 200, lines1[i], vehicles1, txtSize + int(random(4)));
   }
 
   vehicles2 = new ArrayList<Vehicle>();
   for (int i = 0; i < lines2.length; i++) {
-    newVehicle(width-400+i*20, 0, lines2[i],vehicles2, txtSize + int(random(4)));
+    newVehicle(width-400+i*20, 0, lines2[i], vehicles2, txtSize + int(random(4)));
   }
 
   vehicles3 = new ArrayList<Vehicle>();
   for (int i = 0; i < lines3.length; i++) {
-    newVehicle(-200+i*20, 100, lines3[i],vehicles3, txtSize + int(random(-1,4)));
+    newVehicle(-200+i*20, 100, lines3[i], vehicles3, txtSize + int(random(-1, 4)));
   }
+  smooth();
 
   frameRate(30);
 }
@@ -100,16 +135,30 @@ void setup() {
 void draw() {
   image(myMovie, 0, 0);
 
-//  text(frameCount, 30, 30);
+  fft.forward(in.left);
+  for (int f=0; f<sampleRate/2; f++) { //analyses the amplitude of each frequency analysed, between 0 and 22050 hertz
+    max[f]=fft.getFreq(float(f)); //each index is correspondent to a frequency and contains the amplitude value
+  }
+  maximum=max(max);//get the maximum value of the max array in order to find the peak of volume
+
+  for (int i=0; i<max.length; i++) {// read each frequency in order to compare with the peak of volume
+    if (max[i] == maximum) {//if the value is equal to the amplitude of the peak, get the index of the array, which corresponds to the frequency
+      frequency= i;
+    }
+  }
+  maximum = maximum * 1000;
+
+  if (debugF) {
+    text(frameCount, 500, 55);
+    text( "frequency=" + frequency, 500, 15 );
+    text( "max volume=" + maximum, 500, 35 );
+  }
+
+  //  
 
   if (frameCount%350==0 || frameCount==0) {
     btrees.newTrees();
   }
-
-  if (frameCount%500==0) {
-    btrees.removeTrees();
-  }
-
 
   wobble();
 
@@ -134,6 +183,13 @@ void draw() {
     v.run();
   }
 
+  //  for (Smoother s : smoothers) {
+  //    // Path following and separation are worked on in this function
+  //    // Call the generic run method (update, borders, display, etc.)
+  //    s.run();
+  //  }
+
+
   for (Vehicle v : vehicles1) {
     // Path following and separation are worked on in this function
     v.applyBehaviors(vehicles1, path1);
@@ -154,7 +210,6 @@ void draw() {
     // Call the generic run method (update, borders, display, etc.)
     v.run();
   }
-
 }
 
 
@@ -171,7 +226,7 @@ void wobble() {
 void drivingSpeed() {
 }
 
-boolean isWindStrong() {
+boolean isWindStrong1() {
   int mFrameCount = frameCount%120;
   if (mousePressed || (mFrameCount>=0 && mFrameCount<30)) {
     return true;
@@ -180,12 +235,28 @@ boolean isWindStrong() {
   }
 }
 
+boolean isWindStrong() {
+  if (mousePressed || (maximum >1000)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
 void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs, int txtSize) {
   float maxspeed = 0.8;
   float maxforce = 0.2;
-  vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word,txtSize));
+  vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word, txtSize));
 }
 
+void newSmoother(float x, float y, String word, ArrayList<Smoother> ss, int txtSize, Path p) {
+  float maxspeed = 0.8;
+  float maxforce = 0.2;
+  Smoother s = new Smoother(x, y, word, txtSize);
+  s.setPath(p);
+  ss.add(s);
+}
 
 void newPath() {
   // A path is a series of connected points
@@ -202,7 +273,7 @@ void newPath() {
   path.addPoint(width+100, 250);
   path.addPoint(width+100, height+100);
   path.addPoint(-100, height+100);
-  //  path.addPoint(offset,height-offset);
+  path.addPoint(offset, height-offset);
 }
 
 void newPath1() {
@@ -228,7 +299,7 @@ void newPath2() {
   // A more sophisticated path might be a curve
   path2 = new Path();
   float offset = 10;
-//  path2.addPoint(width-300, -300);  
+  //  path2.addPoint(width-300, -300);  
   path2.addPoint(width-300, 0);
   path2.addPoint(width-280, height-400);
   path2.addPoint(width-250, height-220);
@@ -245,7 +316,7 @@ void newPath3() {
   // A more sophisticated path might be a curve
   path3 = new Path();
   float offset = 10;
-//  path2.addPoint(width-300, -300);  
+  //  path2.addPoint(width-300, -300);  
   path3.addPoint(-200, 100);
   path3.addPoint(0, 100);
   path3.addPoint(50, 120);
@@ -278,5 +349,15 @@ int randomSign() { //returns +1 or -1
 
 void mousePressed() {
   angle += 2;
+}
+
+
+void keyPressed() {
+  if (key=='d') {
+    debugF = true;
+  }
+  else if (key=='s'){
+     debugF = false; 
+  }
 }
 

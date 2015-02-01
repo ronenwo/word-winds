@@ -66,12 +66,6 @@ class Trees {
       btreesLayer.filter(BLUR, 1);
   }
 
-  void removeTrees() {
-    //    trees.remove(0);
-    //    trees.remove(0);
-  }
-
-
   void draw() {
 //    alpha ++;
 //    if (alpha == 255) {

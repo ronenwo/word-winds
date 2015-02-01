@@ -64,7 +64,7 @@ class Vehicle {
     // Separate from other boids force
     PVector s = separate(vehicles);
     // Arbitrary weighting
-    f.mult(1.5);
+    f.mult(1);
     s.mult(2);
     // Accumulate in acceleration
     applyForce(f);
