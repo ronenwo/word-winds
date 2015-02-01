@@ -23,7 +23,7 @@ String[] words;
 String[] words1;
 String[] words2;
 
-Path path, path1, path2;
+Path path, path1, path2, path3;
 
 float scalar = 1.2;
 
@@ -31,6 +31,7 @@ float scalar = 1.2;
 ArrayList<Vehicle> vehicles;
 ArrayList<Vehicle> vehicles1;
 ArrayList<Vehicle> vehicles2;
+ArrayList<Vehicle> vehicles3;
 
 
 
@@ -58,6 +59,7 @@ void setup() {
   String lines[] = loadStrings("poem.txt");
   String lines1[] = loadStrings("poem1.txt");
   String lines2[] = loadStrings("poem2.txt");
+  String lines3[] = loadStrings("poem3.txt");
   size(921, 691);
   myMovie = new Movie(this, "wind2.mov");
   myMovie.loop();
@@ -69,22 +71,28 @@ void setup() {
   newPath();
   newPath1();
   newPath2();
+  newPath3();
 
   vehicles = new ArrayList<Vehicle>();
+  int txtSize = 12;
   for (int i = 0; i < lines.length; i++) {
-    newVehicle(-200+i*20, 200, lines[i],vehicles);
+    newVehicle(-200+i*20, 200, lines[i],vehicles, txtSize + int(random(4)));
   }
 
   vehicles1 = new ArrayList<Vehicle>();
   for (int i = 0; i < lines1.length; i++) {
-    newVehicle(-200+i*20, 200, lines1[i],vehicles1);
+    newVehicle(-200+i*20, 200, lines1[i],vehicles1, txtSize + int(random(4)));
   }
 
   vehicles2 = new ArrayList<Vehicle>();
   for (int i = 0; i < lines2.length; i++) {
-    newVehicle(width-400+i*20, 0, lines2[i],vehicles2);
+    newVehicle(width-400+i*20, 0, lines2[i],vehicles2, txtSize + int(random(4)));
   }
 
+  vehicles3 = new ArrayList<Vehicle>();
+  for (int i = 0; i < lines3.length; i++) {
+    newVehicle(-200+i*20, 100, lines3[i],vehicles3, txtSize + int(random(-1,4)));
+  }
 
   frameRate(30);
 }
@@ -94,7 +102,7 @@ void draw() {
 
 //  text(frameCount, 30, 30);
 
-  if (frameCount%200==0 || frameCount==0) {
+  if (frameCount%350==0 || frameCount==0) {
     btrees.newTrees();
   }
 
@@ -140,6 +148,13 @@ void draw() {
     v.run();
   }
 
+  for (Vehicle v : vehicles3) {
+    // Path following and separation are worked on in this function
+    v.applyBehaviors(vehicles3, path3);
+    // Call the generic run method (update, borders, display, etc.)
+    v.run();
+  }
+
 }
 
 
@@ -157,7 +172,7 @@ void drivingSpeed() {
 }
 
 boolean isWindStrong() {
-  int mFrameCount = frameCount%250;
+  int mFrameCount = frameCount%120;
   if (mousePressed || (mFrameCount>=0 && mFrameCount<30)) {
     return true;
   } else {
@@ -165,10 +180,10 @@ boolean isWindStrong() {
   }
 }
 
-void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs) {
+void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs, int txtSize) {
   float maxspeed = 0.8;
   float maxforce = 0.2;
-  vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word));
+  vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word,txtSize));
 }
 
 
@@ -225,6 +240,22 @@ void newPath2() {
   //  path.addPoint(offset,height-offset);
 }
 
+void newPath3() {
+  // A path is a series of connected points
+  // A more sophisticated path might be a curve
+  path3 = new Path();
+  float offset = 10;
+//  path2.addPoint(width-300, -300);  
+  path3.addPoint(-200, 100);
+  path3.addPoint(0, 100);
+  path3.addPoint(50, 120);
+  path3.addPoint(100, 130);
+  path3.addPoint(260, 110);
+  path3.addPoint(300, 80);  
+  path3.addPoint(550, -80);
+  path3.addPoint(-200, -100);
+  //  path.addPoint(offset,height-offset);
+}
 
 
 // Called every time a new frame is available to read

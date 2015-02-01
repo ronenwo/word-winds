@@ -35,7 +35,7 @@ class Trees {
 
 
   void initializeTreeValues() {
-    branchWidthInit = 10;
+    branchWidthInit = 9;
     totalBranchLengthInit = 300;
     nBranchDivisionsInit = 30;
     percentBranchlessInit = .3;
@@ -51,9 +51,11 @@ class Trees {
 
     addBlur = false;
     for (int i=0; i<2; i++) {
+      float y = random(height-300,height);
+      float ht = y / height * totalBranchLengthInit;
       trees.add(
-        new Tree(random(width), random(400, height), -HALF_PI, branchWidthInit, 
-        totalBranchLengthInit, nBranchDivisionsInit, 
+        new Tree(random(100,width), y, -HALF_PI, branchWidthInit, 
+        ht, nBranchDivisionsInit, 
         percentBranchlessInit, branchSizeFractionInit, 
         dThetaGrowMaxInit, dThetaSplitMaxInit, 
         oddsOfBranchingInit, 0, int(random(minLifeSpanBeforeFade,maxLifeSpanBeforeFade)))

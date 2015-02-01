@@ -27,13 +27,14 @@ class Vehicle {
   String text;
   String[] words;
   int[] offset;
+  int txtSize;
   
   int sign = 1; 
   int degrees = 0;
   int pivot = 0;
 
     // Constructor initialize all values
-  Vehicle( PVector l, float ms, float mf, String t) {
+  Vehicle( PVector l, float ms, float mf, String t, int txSize) {
     location = l.get();
     r = 12;
     maxspeed = ms;
@@ -41,10 +42,10 @@ class Vehicle {
     acceleration = new PVector(0, 0);
     velocity = new PVector(maxspeed, 0);
 
-    maxburstspeed = ms * 3;
-    maxburstforce = mf * 2;
-    burstacceleration = new PVector(1.5, random(-0.1,0.3));
-    burstvelocity = new PVector(maxburstspeed, random(-0.05,0.05));
+    maxburstspeed = ms * 4;
+    maxburstforce = mf * 3;
+    burstacceleration = new PVector(1, random(-0.01,0.5));
+    burstvelocity = new PVector(maxburstspeed, random(-0.05,2));
 
     text = t;
     words = split(text," ");
@@ -52,6 +53,8 @@ class Vehicle {
     for (int i=0; i<words.length; i++){
        offset[i] = Math.round(i*40); 
     }
+    txtSize = txSize;
+    
   }
 
   // A function to deal with path following and separation
@@ -206,7 +209,8 @@ class Vehicle {
   void update() {
     // Update velocity
     int mframeCount = frameCount%windCycle;
-    if ((mframeCount>=0 && mframeCount<=20) || (mframeCount>=27 && mframeCount<=35)){
+    if (isWindStrong()){
+//    if ((mframeCount>=0 && mframeCount<=20) || (mframeCount>=27 && mframeCount<=35)){
 //      acceleration.mult(2);
 //      maxspeed *= 2;
 //      PVector burstFuzz = new PVector(random());
@@ -246,24 +250,13 @@ class Vehicle {
     stroke(0);
     pushMatrix();
     translate(location.x, location.y);
-    int counter = frameCount%90;    
     
-    if (counter==89){
-      sign = -1;
-      pivot = 45;  
-    }
-    if (counter==0){
-       sign = 1;
-       pivot = 90; 
-    }
-    degrees = pivot + sign * counter;
-    
-//    rotate(radians(degrees));
     
     for(int i=0; i<words.length ; i++){
-      textSize(12);
+      textSize(txtSize);
       text(words[i],offset[i],i*15);
     }
+    
 //    ellipse(0, 0, r, r);
     popMatrix();
   }
