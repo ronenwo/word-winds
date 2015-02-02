@@ -17,6 +17,8 @@ int windThreshold = 1000;
 
 Movie myMovie;
 
+boolean needReverse = true;
+
 int x = 200;
 int y = 400;
 
@@ -71,13 +73,13 @@ int mvFrameRate = 30;
 
 void setup() {
 
-  size(1197, 1000);
+  size(1197, 1000, OPENGL);
 
-  f1 = createFont("FX_Dakar-Light", 20, true);
-  f2 = createFont("FX_HadasaNewBook-Light", 20, true);
-  f3 = createFont("FX_Optimum-Light", 20, true);
-  f4 = createFont("FX_YamHamelach-Regular", 20, true);
-  f5 = createFont("FX_Zaafran-Light", 20, true);
+  f1 = createFont("FX_Dakar-Light", 30, true);
+  f2 = createFont("FX_HadasaNewBook-Light", 30, true);
+  f3 = createFont("FX_Optimum-Light", 30, true);
+  f4 = createFont("FX_YamHamelach-Regular", 30, true);
+  f5 = createFont("FX_Zaafran-Light", 30, true);
 
 
   minim = new Minim(this);
@@ -111,7 +113,7 @@ void setup() {
   newPath3();
 
   vehicles = new ArrayList<Vehicle>();
-  int txtSize = 12;
+  int txtSize = 15;
   for (int i = 0; i < lines.length; i++) {
     newVehicle(-200+i*20, 200, lines[i], vehicles, txtSize + int(random(4)));
   }
@@ -280,6 +282,9 @@ boolean isWindStrong() {
 void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs, int txtSize) {
   float maxspeed = 2.0;
   float maxforce = 0.1;
+  if (needReverse){
+     word = new StringBuilder(word).reverse().toString(); 
+  }
   vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word, txtSize));
 }
 
