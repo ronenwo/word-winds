@@ -2,6 +2,8 @@ import processing.video.*;
 import ddf.minim.*;
 import ddf.minim.analysis.*;
 
+//AudioPlayer player;
+
 Minim minim;
 AudioInput in;
 FFT fft;
@@ -11,7 +13,7 @@ float [] max= new float [sampleRate/2];//array that contains the half of the sam
 float maximum;//the maximum amplitude of the max array
 float frequency;//the frequency in hertz
 
-
+int windThreshold = 1000;
 
 Movie myMovie;
 
@@ -64,9 +66,12 @@ Trees btrees;
 boolean debugF = false;
 boolean windFrames = false;
 
+float mvSpeed = 1.0;
+int mvFrameRate = 30;
+
 void setup() {
 
-  size(921, 691);
+  size(1197, 1000);
 
   f1 = createFont("FX_Dakar-Light", 20, true);
   f2 = createFont("FX_HadasaNewBook-Light", 20, true);
@@ -74,7 +79,9 @@ void setup() {
   f4 = createFont("FX_YamHamelach-Regular", 20, true);
   f5 = createFont("FX_Zaafran-Light", 20, true);
 
+
   minim = new Minim(this);
+//  player =  minim.loadFile("windsnd1.mp3");
 
   // use the getLineIn method of the Minim object to get an AudioInput
   in = minim.getLineIn();
@@ -89,8 +96,10 @@ void setup() {
   String lines2[] = loadStrings("poem2.txt");
   String lines3[] = loadStrings("poem3.txt");
 
-  myMovie = new Movie(this, "wind2.mov");
+  myMovie = new Movie(this, "wind3.mp4");
   myMovie.loop();
+
+//  player.loop();
 
   treesLayer = createGraphics(width, height);
   btreesLayer = createGraphics(width, height);
@@ -133,7 +142,23 @@ void setup() {
   frameRate(30);
 }
 
+int normalFrameRate = 30;
+int highFrameRate = 50;
+
 void draw() {
+  if (isWindStrong() && (mvFrameRate == normalFrameRate)){
+//     mvSpeed = 1.1;
+     mvFrameRate = highFrameRate;    
+     myMovie.frameRate(mvFrameRate);
+  }
+  else if (mvFrameRate == highFrameRate){
+//     mvSpeed =1; 
+     mvFrameRate = normalFrameRate;
+     myMovie.frameRate(mvFrameRate);
+  }
+//  myMovie.speed(mvSpeed);
+  
+  
   image(myMovie, 0, 0);
 
   fft.forward(in.left);
@@ -150,9 +175,10 @@ void draw() {
   maximum = maximum * 1000;
 
   if (debugF) {
-    text(frameCount, 500, 55);
     text( "frequency=" + frequency, 500, 15 );
     text( "max volume=" + maximum, 500, 35 );
+    text(frameCount, 500, 55);
+    text("threshold=" + windThreshold, 650, 15);
   }
 
   //  
@@ -243,7 +269,7 @@ boolean isWindStrong() {
   if (windFrames){
      return isWindFramesStrong(); 
   }
-  if (maximum >1000) {
+  if (maximum >windThreshold) {
     return true;
   } else {
     return false;
@@ -252,8 +278,8 @@ boolean isWindStrong() {
 
 
 void newVehicle(float x, float y, String word, ArrayList<Vehicle> vs, int txtSize) {
-  float maxspeed = 0.8;
-  float maxforce = 0.2;
+  float maxspeed = 2.0;
+  float maxforce = 0.1;
   vs.add(new Vehicle(new PVector(x, y), maxspeed, maxforce, word, txtSize));
 }
 
@@ -372,5 +398,12 @@ void keyPressed() {
   else if (key=='F'){
      windFrames = false; 
   }
+  else if (key=='m'){
+     windThreshold++ ; 
+  }
+  else if (key=='n'){
+     windThreshold-- ; 
+  }
+  
 }
 

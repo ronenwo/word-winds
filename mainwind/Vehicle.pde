@@ -42,10 +42,10 @@ class Vehicle {
     acceleration = new PVector(0, 0);
     velocity = new PVector(maxspeed, 0);
 
-    maxburstspeed = ms * 4;
-    maxburstforce = mf * 3;
-    burstacceleration = new PVector(1, random(-0.01,0.5));
-    burstvelocity = new PVector(maxburstspeed, random(-0.05,2));
+    maxburstspeed = ms * 7;
+    maxburstforce = mf * 6;
+    burstacceleration = new PVector(3, random(-0.01,0.5));
+    burstvelocity = new PVector(maxburstspeed, random(-0.05,1));
 
     text = t;
     words = split(text," ");
