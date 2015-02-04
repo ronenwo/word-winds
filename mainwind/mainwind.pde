@@ -34,7 +34,9 @@ float maxSnowTheta = HALF_PI*4/5;
 PGraphics treesLayer;
 PGraphics btreesLayer;
 PGraphics lettersLayer;
-PGraphics testLayer;
+PGraphics scapeLayer;
+PGraphics wordsLayer;
+
 
 Letter[] letters;
 String[] words;
@@ -71,6 +73,12 @@ boolean windFrames = false;
 float mvSpeed = 1.0;
 int mvFrameRate = 30;
 
+int normalFrameRate = 30;
+int highFrameRate = 50;
+
+
+PShape scape;
+
 void setup() {
 
   size(1197, 1000, OPENGL);
@@ -106,6 +114,9 @@ void setup() {
   treesLayer = createGraphics(width, height);
   btreesLayer = createGraphics(width, height);
   lettersLayer = createGraphics(width, height);
+  scapeLayer = createGraphics(width, height);
+  wordsLayer = createGraphics(width, height);
+  
 
   newPath();
   newPath1();
@@ -139,15 +150,36 @@ void setup() {
   for (int i = 0; i < lines3.length; i++) {
     newVehicle(-200+i*20, 100, lines3[i], vehicles3, txtSize + int(random(-1, 4)));
   }
+  
+  make_scapes();
+
   smooth();
+
 
   frameRate(30);
 }
 
-int normalFrameRate = 30;
-int highFrameRate = 50;
+public void make_scapes(){
+ float h = 100; 
+  fill(0); 
+  noStroke();
+  scape  = createShape();
+  scape.beginShape();
+  scape.vertex(0,h);
+  for(float i = 0; i <= width; i+=10.0) {
+    float x1 = i;
+    float y1 = h + 80 +  10 *noise((i+24000)/100.0);
+    scape.vertex(x1,y1);   
+  }
+  scape.vertex(width,h+100);
+  scape.vertex(0,h+100);
+  scape.endShape(); 
+}
+
+
 
 void draw() {
+//  background(255,0);
   if (isWindStrong() && (mvFrameRate == normalFrameRate)){
 //     mvSpeed = 1.1;
      mvFrameRate = highFrameRate;    
@@ -161,7 +193,9 @@ void draw() {
 //  myMovie.speed(mvSpeed);
   
   
-  image(myMovie, 0, 0);
+  if (frameCount > 1){
+    image(myMovie, 0, 0);
+  }
 
   fft.forward(in.left);
   for (int f=0; f<sampleRate/2; f++) { //analyses the amplitude of each frequency analysed, between 0 and 22050 hertz
@@ -191,20 +225,42 @@ void draw() {
 
   wobble();
 
+//  scapeLayer.beginDraw();
+//  scapeLayer.background(255, 0);
+  shape(scape,0,height-110);
+//  scapeLayer.endDraw();
+//  blend(scapeLayer,0,0, width,height, 0,0,width,height,MULTIPLY);
 
+//  wordsLayer.beginDraw();
+//  wordsLayer.background(255, 0);
+  drawWords();
+//  wordsLayer.endDraw();
+
+
+
+
+  //  image(treesLayer, 0, 0);
+
+
+//  image(scapeLayer, 0, 0);
+
+  
   btreesLayer.beginDraw();
   btreesLayer.background(255, 0);
   //  btreesLayer.fill(0);
   btrees.cleanUpDeadTrees();
   btrees.draw();
   btreesLayer.endDraw();
+  
+//  image(scapeLayer, 0, 0);
 
-  //  image(treesLayer, 0, 0);
-
+//  image(wordsLayer, 0, 0);
 
   image(btreesLayer, 0, 0);
 
+}
 
+void drawWords(){
   for (Vehicle v : vehicles) {
     // Path following and separation are worked on in this function
     v.applyBehaviors(vehicles, path);
@@ -239,9 +295,8 @@ void draw() {
     // Call the generic run method (update, borders, display, etc.)
     v.run();
   }
+  
 }
-
-
 
 void wobble() {
   tilt = cos(angle) / 4;

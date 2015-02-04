@@ -51,7 +51,7 @@ class Trees {
 
     addBlur = false;
     for (int i=0; i<2; i++) {
-      float y = random(height-300,height);
+      float y = random(height-500,height);
       float ht = y / height * totalBranchLengthInit;
       trees.add(
         new Tree(random(100,width), y, -HALF_PI, branchWidthInit, 

@@ -44,8 +44,8 @@ class Vehicle {
 
     maxburstspeed = ms * 7;
     maxburstforce = mf * 6;
-    burstacceleration = new PVector(3, random(-0.01,0.5));
-    burstvelocity = new PVector(maxburstspeed, random(-0.05,1));
+    burstacceleration = new PVector(3, random(-0.01,1.5));
+    burstvelocity = new PVector(maxburstspeed, random(-0.05,2));
 
     text = t;
     words = split(text," ");
@@ -64,8 +64,8 @@ class Vehicle {
     // Separate from other boids force
     PVector s = separate(vehicles);
     // Arbitrary weighting
-    f.mult(1);
-    s.mult(2);
+    f.mult(0.5);
+    s.mult(1);
     // Accumulate in acceleration
     applyForce(f);
     applyForce(s);
@@ -217,8 +217,10 @@ class Vehicle {
       velocity.add(burstacceleration);
       // Limit speed
       velocity.limit(maxburstspeed);
+      r = 6;
     }
     else{
+      r = 12;
       velocity.add(acceleration);
       // Limit speed
       velocity.limit(maxspeed);
